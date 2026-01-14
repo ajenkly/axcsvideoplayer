@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <!-- Meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/css/bootstrap.min.css"
+          crossorigin="anonymous">
+
+    <!-- Custom CSS -->
+    <link href="styles.css" rel="stylesheet">
+
+    <!-- Name Your Video -->
+    <title>AXCS Video Demo</title>
+
+</head>
+
+<body>
+
+<!--Header-->
+<div class="header">
+  <h1>AXCS Video Demo</h1> <!-- Name video or replace with company image -->
+</div>
+
+<div class="container">
+
+  <div class="player">
+
+    <!-- Responsive Video Wrapper -->
+    <div class="embed-responsive embed-responsive-16by9">
+      <video id="video" class="embed-responsive-item">
+        <source src="video/video.mp4" type="video/mp4"> <!-- Add more video sources, if wanted: webm, hevc, etc. -->
+        <track label="caption" kind="subtitles" srclang="en" src="caption/caption.vtt">
+        Your browser does not support the video tag.
+      </video>
+    </div>
+
+    <!-- Custom Control Bar -->
+    <div class="control-bar">
+
+      <!-- Row 1: Core video controls -->
+      <div class="row justify-content-center mb-3 first-control-row no-wrap-controls">
+
+        <div class="col-auto">
+          <button id="playPauseBtn" class="control-button">▶</button>
+        </div>
+
+        <div class="col flex-seek">
+          <input id="seekBar" type="range" min="0" value="0" step="0.1" class="seek-bar">
+        </div>
+
+        <div class="col-auto volume-wrapper">
+          <button id="volumeBtn" class="control-button">🔊</button>
+          <input id="volumePopup" type="range" min="0" max="1" step="0.05" value="1" class="volume-popup">
+        </div>
+
+        <div class="col-auto">
+          <button id="fullscreenBtn" class="control-button">⛶</button>
+        </div>
+
+      </div>
+
+      <!-- Row 2: Accessibility / resource buttons -->
+      <div class="row justify-content-center">
+
+        <div class="col-auto mb-2">
+          <button class="button" onclick="captionLoad('caption');">Live Caption</button>
+        </div>
+
+        <div class="col-auto mb-2">
+          <a href="transcript/transcript.pdf" download="transcript">
+            <button class="button">Transcript</button>
+          </a>
+        </div>
+
+        <div class="col-auto mb-2">
+          <a href="audio/audio.mp3" download="audio">
+            <button class="button">Full Audio</button>
+          </a>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- Live Caption Box -->
+  <div id="caption"></div>
+
+</div>
+
+<!-- Bootstrap JS -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+
+<script>
+
+  var video, captionBox, caption;
+  var tracks, trackSeg, trackLink = [];
+
+  var playPauseBtn, seekBar, volumeBtn, volumePopup, fullscreenBtn;
+  var isSeeking = false;
+  var volumeHideTimeout = null;
+
+  window.onload = function() {
+
+    captionBox = document.querySelector("#caption");
+    video = document.querySelector("#video");
+
+    playPauseBtn = document.getElementById("playPauseBtn");
+    seekBar = document.getElementById("seekBar");
+    volumeBtn = document.getElementById("volumeBtn");
+    volumePopup = document.getElementById("volumePopup");
+    fullscreenBtn = document.getElementById("fullscreenBtn");
+
+    // Tracks as segments
+    trackSeg = document.querySelectorAll("track");
+    for (var i = 0, len = trackSeg.length; i < len; i++) {
+      var currentSeg = trackSeg[i];
+      trackLink[i] = currentSeg.src;
+    }
+
+    // Tracks to JS objects
+    tracks = video.textTracks;
+
+    // Force all tracks hidden so browser captions never appear
+    for (var i = 0; i < tracks.length; i++) {
+      tracks[i].mode = "hidden";
+    }
+
+    setupCustomControls();
+  };
+
+  function setupCustomControls() {
+
+    // Play / Pause
+    playPauseBtn.addEventListener("click", function () {
+      if (video.paused || video.ended) {
+        video.play();
+      } else {
+        video.pause();
+      }
+    });
+
+    video.addEventListener("play", function () {
+      playPauseBtn.textContent = "⏸";
+    });
+
+    video.addEventListener("pause", function () {
+      playPauseBtn.textContent = "▶";
+    });
+
+    // Update seek bar
+    video.addEventListener("loadedmetadata", function () {
+      seekBar.max = video.duration;
+    });
+
+    video.addEventListener("timeupdate", function () {
+      if (!isSeeking) {
+        seekBar.value = video.currentTime;
+      }
+    });
+
+    // Seek interaction
+    seekBar.addEventListener("input", function () {
+      isSeeking = true;
+    });
+
+    seekBar.addEventListener("change", function () {
+      video.currentTime = seekBar.value;
+      isSeeking = false;
+    });
+
+    // Volume popup toggle
+    volumeBtn.addEventListener("click", function () {
+      volumePopup.classList.toggle("show");
+    });
+
+    // Adjust volume
+    volumePopup.addEventListener("input", function () {
+      video.volume = volumePopup.value;
+
+      clearTimeout(volumeHideTimeout);
+      volumeHideTimeout = setTimeout(() => {
+        volumePopup.classList.remove("show");
+      }, 1000);
+    });
+
+    // Hide popup when clicking outside
+    document.addEventListener("click", function (e) {
+      if (!volumePopup.contains(e.target) && !volumeBtn.contains(e.target)) {
+        volumePopup.classList.remove("show");
+      }
+    });
+
+    // Fullscreen
+    fullscreenBtn.addEventListener("click", function () {
+      if (!document.fullscreenElement) {
+        video.requestFullscreen();
+      } else {
+        document.exitFullscreen();
+      }
+    });
+  }
+
+  // Load caption
+  function captionLoad(cap) {
+
+    // Reveal caption box
+    document.getElementById("caption").style.display = "block";
+
+    for (var i = 0, len = tracks.length; i < len; i++) {
+      var track = tracks[i];
+      var trackLinks = trackSeg[i];
+
+      // Keep browser captions hidden at all times
+      track.mode = "hidden";
+
+      if (trackLinks.readyState === 2) {
+        displaySegs(track);
+      } else {
+        displaySegsLoaded(trackLinks, track);
+      }
+    }
+  }
+
+  // Listener called when track loaded
+  function displaySegsLoaded(trackSeg, track) {
+    trackSeg.addEventListener('load', function(e) {
+      displaySegs(track);
+    });
+  }
+
+  // Display caption to box
+  function displaySegs(track) {
+    var cues = track.cues;
+    for (var i = 0, len = cues.length; i < len; i++) {
+      var seg = cues[i];
+      addListener(seg);
+      var linkText = "<span class='segs' id=" + seg.id + " onclick='jump(" + seg.startTime + ");'" + ">" + seg.text + " " + "</span>";
+      toCaptionBox(linkText);
+    }
+  }
+
+  // Caption click jumps to video time
+  function jump(time) {
+    video.currentTime = time;
+    video.play();
+  }
+
+  function toCaptionBox(text) {
+    captionBox.innerHTML += text;
+  }
+
+  // Segment highlight
+  function addListener(seg) {
+    seg.onenter = function() {
+      var captionText = document.getElementById(this.id);
+      captionText.classList.add("hl");
+    };
+
+    seg.onexit = function() {
+      var captionText = document.getElementById(this.id);
+      captionText.classList.remove("hl");
+    };
+  }
+
+</script>
+
+</body>
+</html>

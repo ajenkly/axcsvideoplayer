@@ -1,0 +1,183 @@
+/* Header */
+.header {
+  color: #3A3936;
+  padding: 1rem 1rem 0rem 1rem;
+  text-align: center;
+}
+
+/* Buttons */
+.button {
+  background-color: #00b6d2;
+  border: 3px solid #005f6d;
+  border-radius: 25px;
+  color: #F5F5F1;
+  padding: 8px 16px;
+  text-align: center;
+  display: inline-block;
+  margin: 4px 2px;
+  cursor: pointer;
+  font-size: 16px;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    transform 0.15s ease;
+}
+
+.button:hover {
+  background-color: #F5F5F1;
+  color: #3A3936;
+  transform: translateY(-2px);
+}
+
+.button:active {
+  transform: translateY(0);
+}
+
+/* Player */
+.player {
+  background-color: #00C1E0;
+  border-radius: 5px 5px 0px 0px;
+  padding: 20px 20px 0px 20px;
+  margin: 0 auto;
+  max-width: 800px;
+  width: 100%;
+}
+
+/* Control bar container */
+.control-bar {
+  max-width: 800px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* Add spacing between video and first row */
+.first-control-row {
+  padding-top: 16px;
+}
+
+/* Prevent wrapping of first-row controls */
+.no-wrap-controls {
+  flex-wrap: nowrap;
+}
+
+/* Seek bar grows/shrinks to fill remaining space */
+.flex-seek {
+  flex: 1 1 auto;
+  min-width: 80px;
+}
+
+.flex-seek .seek-bar {
+  width: 100%;
+}
+
+/* Control buttons */
+.control-button {
+  background-color: #F5F5F1;
+  border: 2px solid #3A3936;
+  border-radius: 4px;
+  color: #3A3936;
+  padding: 4px 10px;
+  cursor: pointer;
+  font-size: 14px;
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease,
+    transform 0.15s ease;
+}
+
+.control-button:hover {
+  background-color: #3A3936;
+  color: #F5F5F1;
+  transform: translateY(-1px);
+}
+
+.control-button:active {
+  transform: translateY(0);
+}
+
+/* Volume popup */
+.volume-wrapper {
+  position: relative;
+}
+
+.volume-popup {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 120px;
+  display: none;
+  padding: 4px;
+  background: #F5F5F1;
+  border: 2px solid #3A3936;
+  border-radius: 6px;
+  z-index: 999;
+}
+
+.volume-popup.show {
+  display: block;
+  animation: fadeIn 0.15s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(5px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* Caption Segments */
+.segs {
+  color: #6D5560;
+}
+
+.segs:hover {
+  text-decoration: underline;
+}
+
+.segs.hl {
+  color: #ff5946;
+  filter: drop-shadow(0 0 0 #ff5946)
+          drop-shadow(0 0 0 #ff5946);
+}
+
+/* Video */
+#video {
+  display: block;
+  margin: 0 auto;
+  width: 100%;
+  background-color: #3A3936;
+}
+
+/* Caption Box */
+#caption {
+  padding: 10px;
+  border: 3px solid;
+  border-radius: 0px 0px 5px 5px;
+  border-color: #00C1E0;
+  background: #F5F5F1;
+  max-height: 150px;
+  overflow: auto;
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  margin-top: 10px;
+  font-size: 15px;
+  cursor: pointer;
+  display: none;
+}
+
+/* Optional scrollbar styling */
+#caption::-webkit-scrollbar {
+  width: 8px;
+}
+
+#caption::-webkit-scrollbar-thumb {
+  background: #00C1E0;
+  border-radius: 4px;
+}
+
+/* Small-screen tweaks */
+@media (max-width: 575.98px) {
+  .control-bar .row {
+    text-align: center;
+  }
+}
